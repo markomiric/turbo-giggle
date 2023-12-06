@@ -9,7 +9,8 @@ const port: number = parseInt(config.port) || 5000;
 server.listen(port, () => {
     console.log(` Server running in ${config.env} mode on port ${port}`);
     console.log(` Swagger UI available at http://localhost:5000/swagger`);
-    logger.info(`Server running in ${config.env} mode on port ${port}`);
+    console.log(` App available at http://localhost:5000`);
+    logger.info(` Server running in ${config.env} mode on port ${port}`);
 });
 
 // quit on ctrl-c when running docker in terminal
