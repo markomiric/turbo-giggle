@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Dashboard</title>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
+        />
+    </head>
+    <body>
+        <main>
+            <div class="container">
+                <header>
+                    <nav
+                        class="navbar"
+                        role="navigation"
+                        aria-label="main navigation"
+                    >
+                        <div id="navbarBasicExample" class="navbar-menu">
+                            <div class="navbar-start">
+                                <p class="navbar-item">
+                                    Welcome <%= user.email %>
+                                </p>
+                                <a href="/swagger" class="navbar-item">
+                                    Swagger
+                                </a>
+                            </div>
+
+                            <div class="navbar-end">
+                                <div class="navbar-item">
+                                    <div class="buttons">
+                                        <a
+                                            href="/api/v1/auth/logout"
+                                            class="button is-light"
+                                        >
+                                            <strong>Logout</strong>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+                </header>
+                <br />
+                <div class="notification-message"></div>
+                <br />
+                <div class="container">
+                    <div class="columns is-mobile is-centered is-vcentered">
+                        <div class="column is-12">
+                            <div>
+                                <h1 class="title">Users</h1>
+                                <br />
+                            </div>
+                            <table
+                                class="table is-bordered is-striped is-narrow is-fullwidth"
+                            >
+                                <thead>
+                                    <th>ID</th>
+                                    <th>EMAIL</th>
+                                    <th>VERIFIED</th>
+                                    <th>CREATED AT</th>
+                                    <th>UPDATED AT</th>
+                                </thead>
+                                <tbody>
+                                    <% for(let i = users.length - 1; i >= 0;
+                                    i--) { %>
+                                    <tr>
+                                        <td><%= users[i].id %></td>
+                                        <td><%= users[i].email %></td>
+                                        <td>
+                                            <%= users[i].active ? "yes" : "no"
+                                            %>
+                                        </td>
+                                        <td>
+                                            <%= new
+                                            Date(users[i].createdAt).toLocaleString()
+                                            %>
+                                        </td>
+                                        <td>
+                                            <%= new
+                                            Date(users[i].updatedAt).toLocaleString()
+                                            %>
+                                        </td>
+                                    </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            const socket = io();
+            socket.on("login", (message) => {
+                outputMessage(message);
+            });
+            socket.on("logout", (message) => {
+                outputMessage(message);
+            });
+            socket.on("register", (message) => {
+                outputMessage(message);
+            });
+            socket.on("verify", (message) => {
+                outputMessage(message);
+            });
+
+            function outputMessage(message) {
+                const div = document.createElement("div");
+                div.classList.add("notification");
+                div.classList.add("is-info");
+                const p = document.createElement("p");
+                p.innerText = `${message}`;
+                div.appendChild(p);
+                document
+                    .querySelector(".notification-message")
+                    .appendChild(div);
+                setTimeout(() => {
+                    div.remove();
+                }, 10000);
+            }
+        </script>
+    </body>
+</html>

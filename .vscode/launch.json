@@ -1,0 +1,46 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Program",
+            "skipFiles": ["<node_internals>/**"],
+            "program": "${workspaceFolder}\\src\\server.ts",
+            "preLaunchTask": "tsc: build - tsconfig.json",
+            "outFiles": ["${workspaceFolder}/dist/**/*.js"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug",
+            "env": {
+                "NODE_ENV": "development"
+            },
+            "skipFiles": ["<node_internals>/**"],
+            "program": "${workspaceFolder}/src/index.ts",
+            "console": "integratedTerminal",
+            "runtimeArgs": ["run-script", "dev"],
+            "runtimeExecutable": "pnpm",
+            "outFiles": ["${workspaceFolder}/**/*.js"]
+        },
+        {
+            "type": "node",
+            "name": "Test",
+            "env": {
+                "NODE_ENV": "testing"
+            },
+            "request": "launch",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "cwd": "${workspaceFolder}",
+            "runtimeExecutable": "pnpm",
+            "args": [
+                "jest",
+                "--runInBand",
+                "--watchAll=false",
+                "--testTimeout=100000000"
+            ]
+        }
+    ]
+}

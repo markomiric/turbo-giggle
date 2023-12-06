@@ -1,0 +1,30 @@
+services:
+    server:
+        container_name: server
+        build:
+            context: .
+            args:
+                - NODE_ENV=development
+        ports:
+            - "5000:5000"
+        volumes:
+            - .:/opt/app
+            - ./package.json:/opt/app/package.json
+            - ./pnpm-lock.yaml:/opt/app/pnpm-lock.yaml
+            - notused:/opt/app/node_modules
+        environment:
+            - NODE_ENV=development
+            - PORT=5000
+        depends_on:
+            - mailhog
+
+    mailhog:
+        container_name: mailhog
+        image: mailhog/mailhog:v1.0.0
+        ports:
+            - "8025:8025"
+            - "1025:1025"
+        restart: always
+
+volumes:
+    notused:
