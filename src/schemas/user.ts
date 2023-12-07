@@ -1,4 +1,13 @@
-import { define, Infer, object, string, date, nullable } from "superstruct";
+import {
+    define,
+    Infer,
+    object,
+    string,
+    date,
+    nullable,
+    intersection,
+    refine,
+} from "superstruct";
 import isEmail from "is-email";
 import isUuid from "is-uuid";
 
@@ -23,5 +32,19 @@ export const UserGetSchema = object({
 export const EmailSchema = object({
     email: Email,
 });
+
+export const BasePasswordConfirmationSchema = object({
+    password: string(),
+    repeatPassword: string(),
+});
+
+export const PasswordConfirmationSchema = intersection([
+    refine(
+        BasePasswordConfirmationSchema,
+        "PasswordMatch",
+        (schema: { password: string; repeatPassword: string }) =>
+            schema.password === schema.repeatPassword
+    ),
+]);
 
 export type User = Infer<typeof UserGetSchema>;

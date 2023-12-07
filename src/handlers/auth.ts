@@ -3,10 +3,19 @@ import { randomBytes } from "node:crypto";
 import { is } from "superstruct";
 
 import prisma from "../db";
-import { generateHash, compareHash, generateToken } from "../utils/auth";
+import {
+    generateHash,
+    compareHash,
+    generateToken,
+    createSha256Hash,
+} from "../utils/auth";
 import sendEmail from "../utils/email";
 import config from "../config";
-import { UserSchema, EmailSchema } from "../schemas/user";
+import {
+    UserSchema,
+    EmailSchema,
+    PasswordConfirmationSchema,
+} from "../schemas/user";
 
 export const registerUser = async (req: Request, res: Response) => {
     if (!is(req.body, UserSchema)) {
@@ -32,7 +41,7 @@ export const registerUser = async (req: Request, res: Response) => {
         },
     });
 
-    const verificationToken = randomBytes(32).toString("hex");
+    const verificationToken = createSha256Hash(randomBytes(16).toString("hex"));
 
     await prisma.verificationToken.create({
         data: {
@@ -108,7 +117,7 @@ export const verifyUserEmail = async (req: Request, res: Response) => {
 
         await prisma.verificationToken.delete({
             where: {
-                id: verificationToken.id,
+                token: verificationToken.token,
             },
         });
 
@@ -160,7 +169,7 @@ export const sendVerificationToken = async (req: Request, res: Response) => {
         throw new Error("User email has already been verified");
     }
 
-    const verificationToken = randomBytes(32).toString("hex");
+    const verificationToken = createSha256Hash(randomBytes(16).toString("hex"));
 
     await prisma.verificationToken.create({
         data: {
@@ -186,7 +195,7 @@ export const sendVerificationToken = async (req: Request, res: Response) => {
         `${user.email} requested a new verification email`
     );
 
-    res.status(201);
+    res.sendStatus(201);
 };
 
 export const loginUser = async (req: Request, res: Response) => {
@@ -224,5 +233,122 @@ export const loginUser = async (req: Request, res: Response) => {
 export const logoutUser = async (req: Request, res: Response) => {
     res.clearCookie("jwt");
     req.context.io.emit("logout", `Someone logged out of the app`);
-    res.redirect("/login");
+    res.status(200).redirect("/login");
+};
+
+export const sendPasswordResetLink = async (req: Request, res: Response) => {
+    if (!is(req.body, EmailSchema)) {
+        res.status(400).json({ message: "Invalid request body" });
+        throw new Error("Invalid request body");
+    }
+
+    const user = await prisma.user.findUnique({
+        where: {
+            email: req.body.email as string,
+        },
+    });
+
+    if (!user) {
+        res.status(400).json({ message: "User doesn't exist" });
+        throw new Error("User doesn't exist");
+    }
+
+    const passwordResetToken = createSha256Hash(
+        randomBytes(16).toString("hex")
+    );
+
+    await prisma.verificationToken.create({
+        data: {
+            userId: user.id,
+            token: passwordResetToken,
+        },
+    });
+
+    const payload = {
+        email: user.email,
+        url: `http://localhost:5000/password/reset/${user.id}/${passwordResetToken}`,
+    };
+
+    await sendEmail(
+        user.email,
+        "Reset password",
+        payload,
+        "../templates/resetPassword.ejs"
+    );
+
+    res.sendStatus(201);
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+    if (!is(req.body, PasswordConfirmationSchema)) {
+        res.status(400).json({ message: "Invalid request body" });
+        throw new Error("Invalid request body");
+    }
+
+    const user = await prisma.user.findUnique({
+        where: {
+            id: req.params.userId,
+        },
+    });
+
+    if (!user) {
+        res.status(400).json({ message: "User doesn't exist" });
+        throw new Error("User doesn't exist");
+    }
+
+    const verificationToken = await prisma.verificationToken.findUnique({
+        where: {
+            userId: user.id,
+            token: req.params.token,
+        },
+    });
+
+    if (verificationToken) {
+        const date = new Date();
+        const timeDifference =
+            date.getTime() - verificationToken.createdAt.getTime();
+
+        if (timeDifference > 5 * 60 * 1000) {
+            res.status(400).json({
+                message: "Password reset token has expired",
+            });
+            throw new Error("Password reset token has expired");
+        }
+
+        await prisma.user.update({
+            where: {
+                id: user.id,
+            },
+            data: {
+                password: await generateHash(req.body.password),
+                updatedAt: new Date(),
+            },
+        });
+
+        await prisma.verificationToken.delete({
+            where: {
+                token: verificationToken.token,
+            },
+        });
+
+        const payload = {};
+
+        await sendEmail(
+            user.email,
+            "Password reset success",
+            payload,
+            "../templates/resetPasswordSuccess.ejs"
+        );
+
+        req.context.io.emit(
+            "reset",
+            `${user.email} successfully reset their password`
+        );
+        res.sendStatus(200);
+    } else {
+        res.status(400).json({
+            message: "Invalid password reset token",
+        });
+        throw new Error("Invalid password reset token");
+    }
 };

@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import * as bcrypt from "bcrypt";
 import config from "../config";
@@ -35,4 +36,15 @@ export const generateToken = (userId: string): string => {
     return jwt.sign({ userId }, config.secrets.jwt, {
         expiresIn: "30d",
     });
+};
+
+/**
+ * Creates a SHA-256 hash for a given token.
+ * @param token The token to hash.
+ * @returns The generated hash.
+ */
+export const createSha256Hash = (token: string): string => {
+    const hash = crypto.createHash("sha256");
+    hash.update(token);
+    return hash.digest("hex");
 };

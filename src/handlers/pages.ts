@@ -12,6 +12,17 @@ export const sendVerificationTokenPage = async (
     res.render(__dirname + "/../views/sendVerificationToken.ejs");
 };
 
+export const sendPasswordResetLinkPage = async (
+    req: Request,
+    res: Response
+) => {
+    res.render(__dirname + "/../views/sendPasswordResetLink.ejs");
+};
+
+export const resetPasswordPage = async (req: Request, res: Response) => {
+    res.render(__dirname + "/../views/passwordReset.ejs");
+};
+
 export const loginPage = async (req: Request, res: Response) => {
     res.render(__dirname + "/../views/login.ejs");
 };

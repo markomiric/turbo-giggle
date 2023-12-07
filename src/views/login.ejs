@@ -56,6 +56,12 @@
                             </form>
                             <br />
                             <p class="has-text-centered">
+                                <a href="/password/reset/link"
+                                    >Forgot password?</a
+                                >
+                            </p>
+                            <br />
+                            <p class="has-text-centered">
                                 Don't have an account?
                                 <a href="/register">Register</a>
                             </p>
@@ -80,8 +86,9 @@
                     .then(function (response) {
                         if (response.status == 200) {
                             window.location.href = "http://localhost:5000";
+                        } else {
+                            alert("Error: Bad Request");
                         }
-                        return response.json();
                     })
                     .catch(function (err) {
                         alert(`Error: ${err}`);

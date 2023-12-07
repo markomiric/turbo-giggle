@@ -5,6 +5,8 @@ import {
     logoutUser,
     verifyUserEmail,
     sendVerificationToken,
+    sendPasswordResetLink,
+    resetPassword,
 } from "./handlers/auth";
 import {
     createUser,
@@ -19,6 +21,8 @@ import {
     indexPage,
     loginPage,
     registerPage,
+    resetPasswordPage,
+    sendPasswordResetLinkPage,
     sendVerificationTokenPage,
 } from "./handlers/pages";
 
@@ -29,13 +33,17 @@ router.route("/healthz").get(async (req: Request, res: Response) => {
 });
 
 router.route("/register").get(registerPage);
-router.route("/verification/send").get(sendVerificationTokenPage);
+router.route("/verification/token").get(sendVerificationTokenPage);
+router.route("/password/reset/link").get(sendPasswordResetLinkPage);
+router.route("/password/reset/:userId/:token").get(resetPasswordPage);
 router.route("/login").get(loginPage);
 router.route("/").get(protect, indexPage);
 
 router.route("/api/v1/auth/register").post(registerUser);
 router.route("/api/v1/auth/verify/:userId/:token").get(verifyUserEmail);
 router.route("/api/v1/auth/verify").post(sendVerificationToken);
+router.route("/api/v1/auth/password/reset/:userId/:token").post(resetPassword);
+router.route("/api/v1/auth/password/reset").post(sendPasswordResetLink);
 router.route("/api/v1/auth/login").post(loginRequestLimiter, loginUser);
 router.route("/api/v1/auth/logout").get(logoutUser);
 

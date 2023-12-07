@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Resend Verification</title>
+        <title>Resend Verification Email</title>
         <link
             rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
@@ -35,8 +35,6 @@
                                 <div class="field">
                                     <div class="control">
                                         <button
-                                            id="btn"
-                                            onclick="disableButton()"
                                             class="button is-link is-fullwidth"
                                             type="submit"
                                         >
@@ -70,20 +68,14 @@
                     .then(function (response) {
                         if (response.status == 201) {
                             alert("Check your email for verification link");
+                        } else {
+                            alert("Error: Bad Request");
                         }
                     })
                     .catch(function (err) {
                         alert(`Error: ${err}`);
                     });
             });
-
-            function disableButton() {
-                const btn = document.getElementById("btn");
-                btn.disabled = true;
-                setTimeout(() => {
-                    btn.disabled = false;
-                }, 5000);
-            }
         </script>
     </body>
 </html>

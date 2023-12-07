@@ -45,7 +45,13 @@ io.on("connection", (socket) => {
     });
 });
 
-app.use((err: any, req: any, res: any, next: any) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
+    const error = new Error(`Not found - ${req.originalUrl}`);
+    res.sendStatus(404);
+    next(error);
+});
+
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     const statusCode = res.statusCode ? res.statusCode : 500;
 
     return res.status(statusCode).json({
