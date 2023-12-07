@@ -3,7 +3,7 @@ import { assert } from "superstruct";
 
 import prisma from "../db";
 import { generateHash } from "../utils/auth";
-import { UserCreateSchema, UserUpdateSchema } from "../schemas/user";
+import { UserSchema } from "../schemas/user";
 
 /**
  * Creates a new user in a database and sends the user ID as a JSON response.
@@ -11,7 +11,7 @@ import { UserCreateSchema, UserUpdateSchema } from "../schemas/user";
  * @param res The response object from the Express framework.
  */
 export const createUser = async (req: Request, res: Response) => {
-    assert(req.body, UserCreateSchema);
+    assert(req.body, UserSchema);
     const user = await prisma.user.create({
         data: {
             email: req.body.email as string,
@@ -73,7 +73,7 @@ export const getUser = async (req: Request, res: Response) => {
  * @param res The response object from the Express framework.
  */
 export const updateUser = async (req: Request, res: Response) => {
-    assert(req.body, UserUpdateSchema);
+    assert(req.body, UserSchema);
     const user = await prisma.user.update({
         select: {
             id: true,
@@ -88,6 +88,7 @@ export const updateUser = async (req: Request, res: Response) => {
         data: {
             email: req.body.email as string,
             password: req.body.password,
+            updatedAt: new Date(),
         },
     });
 

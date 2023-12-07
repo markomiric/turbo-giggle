@@ -5,6 +5,13 @@ export const registerPage = async (req: Request, res: Response) => {
     res.render(__dirname + "/../views/register.ejs");
 };
 
+export const sendVerificationTokenPage = async (
+    req: Request,
+    res: Response
+) => {
+    res.render(__dirname + "/../views/sendVerificationToken.ejs");
+};
+
 export const loginPage = async (req: Request, res: Response) => {
     res.render(__dirname + "/../views/login.ejs");
 };

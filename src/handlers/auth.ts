@@ -6,10 +6,10 @@ import prisma from "../db";
 import { generateHash, compareHash, generateToken } from "../utils/auth";
 import sendEmail from "../utils/email";
 import config from "../config";
-import { UserCreateSchema } from "../schemas/user";
+import { UserSchema, EmailSchema } from "../schemas/user";
 
 export const registerUser = async (req: Request, res: Response) => {
-    if (!is(req.body, UserCreateSchema)) {
+    if (!is(req.body, UserSchema)) {
         res.status(400).json({ message: "Invalid request body" });
         throw new Error("Invalid request body");
     }
@@ -137,8 +137,60 @@ export const verifyUserEmail = async (req: Request, res: Response) => {
     }
 };
 
+export const sendVerificationToken = async (req: Request, res: Response) => {
+    if (!is(req.body, EmailSchema)) {
+        res.status(400).json({ message: "Invalid request body" });
+        throw new Error("Invalid request body");
+    }
+
+    const user = await prisma.user.findUnique({
+        where: {
+            email: req.body.email as string,
+        },
+    });
+
+    if (!user) {
+        res.status(400).json({ message: "User doesn't exist" });
+        throw new Error("User doesn't exist");
+    }
+    if (user.active) {
+        res.status(400).json({
+            message: "User email has already been verified",
+        });
+        throw new Error("User email has already been verified");
+    }
+
+    const verificationToken = randomBytes(32).toString("hex");
+
+    await prisma.verificationToken.create({
+        data: {
+            userId: user.id,
+            token: verificationToken,
+        },
+    });
+
+    const payload = {
+        email: user.email,
+        url: `http://localhost:5000/api/v1/auth/verify/${user.id}/${verificationToken}`,
+    };
+
+    await sendEmail(
+        user.email,
+        "Verify email",
+        payload,
+        "../templates/verifyEmail.ejs"
+    );
+
+    req.context.io.emit(
+        "verify",
+        `${user.email} requested a new verification email`
+    );
+
+    res.status(201);
+};
+
 export const loginUser = async (req: Request, res: Response) => {
-    if (!is(req.body, UserCreateSchema)) {
+    if (!is(req.body, UserSchema)) {
         res.status(400).json({ message: "Invalid request body" });
         throw new Error("Invalid request body");
     }

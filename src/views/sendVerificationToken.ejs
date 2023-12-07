@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Register</title>
+        <title>Resend Verification</title>
         <link
             rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
@@ -15,7 +15,9 @@
                 <div class="container">
                     <div class="columns is-centered">
                         <div class="column is-half">
-                            <h1 class="title has-text-centered">Register</h1>
+                            <h1 class="title has-text-centered">
+                                Resend verification
+                            </h1>
                             <form id="form">
                                 <div class="field">
                                     <label class="label">Email</label>
@@ -29,23 +31,12 @@
                                         />
                                     </div>
                                 </div>
-
-                                <div class="field">
-                                    <label class="label">Password</label>
-                                    <div class="control">
-                                        <input
-                                            name="password"
-                                            class="input"
-                                            type="password"
-                                            placeholder="Password input"
-                                            value=""
-                                        />
-                                    </div>
-                                </div>
                                 <br />
                                 <div class="field">
                                     <div class="control">
                                         <button
+                                            id="btn"
+                                            onclick="disableButton()"
                                             class="button is-link is-fullwidth"
                                             type="submit"
                                         >
@@ -59,9 +50,6 @@
                                 Already have an account?
                                 <a href="/login">Login</a>
                             </p>
-                            <p class="resend-verification">
-                                <!-- This paragraph will be populated with a message to resend verification link -->
-                            </p>
                         </div>
                     </div>
                 </div>
@@ -70,20 +58,18 @@
         <script>
             form.addEventListener("submit", (e) => {
                 e.preventDefault();
-                fetch("http://localhost:5000/api/v1/auth/register", {
+                fetch("http://localhost:5000/api/v1/auth/verify", {
                     method: "post",
                     headers: {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
                         email: form.email.value,
-                        password: form.password.value,
                     }),
                 })
                     .then(function (response) {
                         if (response.status == 201) {
                             alert("Check your email for verification link");
-                            createResendVerificationMessage();
                         }
                     })
                     .catch(function (err) {
@@ -91,14 +77,12 @@
                     });
             });
 
-            function createResendVerificationMessage() {
-                const p = document.querySelector(".resend-verification");
-                p.classList.add("has-text-centered");
-                p.innerText = "Didn't receive verification email? ";
-                const a = document.createElement("a");
-                a.href = "/verification/send";
-                a.innerText = "Resend verification link";
-                p.appendChild(a);
+            function disableButton() {
+                const btn = document.getElementById("btn");
+                btn.disabled = true;
+                setTimeout(() => {
+                    btn.disabled = false;
+                }, 5000);
             }
         </script>
     </body>
