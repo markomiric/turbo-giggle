@@ -227,7 +227,7 @@ export const loginUser = async (req: Request, res: Response) => {
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
     req.context.io.emit("login", `${user.email} logged in`);
-    res.json({ accessToken: token });
+    res.status(200).json({ accessToken: token });
 };
 
 export const logoutUser = async (req: Request, res: Response) => {

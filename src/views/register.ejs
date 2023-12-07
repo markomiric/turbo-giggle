@@ -85,7 +85,7 @@
                             alert("Check your email for verification link");
                             createResendVerificationMessage();
                         } else {
-                            alert("Error: Bad Request");
+                            alert(`Error: ${response.status}`);
                         }
                     })
                     .catch(function (err) {

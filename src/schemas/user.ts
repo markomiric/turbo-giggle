@@ -3,6 +3,7 @@ import {
     Infer,
     object,
     string,
+    boolean,
     date,
     nullable,
     intersection,
@@ -29,6 +30,11 @@ export const UserGetSchema = object({
     updatedAt: nullable(date()),
 });
 
+export const UserUpdateSchema = object({
+    email: Email,
+    active: boolean(),
+});
+
 export const EmailSchema = object({
     email: Email,
 });
@@ -48,3 +54,6 @@ export const PasswordConfirmationSchema = intersection([
 ]);
 
 export type User = Infer<typeof UserGetSchema>;
+function optional(arg0: any) {
+    throw new Error("Function not implemented.");
+}

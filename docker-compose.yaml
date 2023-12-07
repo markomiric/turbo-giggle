@@ -3,8 +3,6 @@ services:
         container_name: server
         build:
             context: .
-            args:
-                - NODE_ENV=development
         ports:
             - "5000:5000"
         volumes:

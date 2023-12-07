@@ -80,8 +80,7 @@
                             }
                         }
                     }
-                },
-                "security": [{ "bearerAuth": [] }]
+                }
             }
         },
         "/users": {
@@ -107,7 +106,7 @@
                         "description": "Unauthorized"
                     }
                 },
-                "security": [{ "bearerAuth": [] }]
+                "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }]
             },
             "post": {
                 "tags": ["user"],
@@ -166,7 +165,8 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }]
             },
             "put": {
                 "tags": ["user"],
@@ -186,11 +186,11 @@
                     }
                 ],
                 "requestBody": {
-                    "description": "Register a user",
+                    "description": "Update a user",
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/UserIn"
+                                "$ref": "#/components/schemas/UserUpdateIn"
                             }
                         }
                     },
@@ -207,7 +207,8 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }]
             },
             "delete": {
                 "tags": ["user"],
@@ -237,7 +238,8 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }]
             }
         }
     },
@@ -253,6 +255,22 @@
                     "password": {
                         "type": "string",
                         "example": "password"
+                    }
+                },
+                "xml": {
+                    "name": "user"
+                }
+            },
+            "UserUpdateIn": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "example": "john.doe@email.com"
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "example": "false"
                     }
                 },
                 "xml": {
